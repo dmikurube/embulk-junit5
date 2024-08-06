@@ -1,0 +1,3 @@
+rootProject.name = "embulk"
+include "embulk-junit5-api"
+include "embulk-junit5-engine"
