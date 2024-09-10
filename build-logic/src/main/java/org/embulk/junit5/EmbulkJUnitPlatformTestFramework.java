@@ -38,6 +38,7 @@ import org.gradle.api.internal.tasks.testing.TestFrameworkDistributionModule;
 import org.gradle.api.internal.tasks.testing.WorkerTestClassProcessorFactory;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter;
+import org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformSpec;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Provider;
@@ -103,13 +104,14 @@ public class EmbulkJUnitPlatformTestFramework implements TestFramework {
         }
 
         validateOptions(this.options);
-        /*
-        return new JUnitPlatformTestClassProcessorFactory(new JUnitPlatformSpec(
-            filter.toSpec(), options.getIncludeEngines(), options.getExcludeEngines(),
-            options.getIncludeTags(), options.getExcludeTags(), dryRun.get()
+        return new EmbulkJUnitPlatformTestClassProcessorFactory(new JUnitPlatformSpec(
+            this.filter.toSpec(),
+            this.options.getIncludeEngines(),
+            this.options.getExcludeEngines(),
+            this.options.getIncludeTags(),
+            this.options.getExcludeTags(),
+            this.dryRun.get()
         ));
-        */
-        return null;
     }
 
     /**
@@ -134,8 +136,7 @@ public class EmbulkJUnitPlatformTestFramework implements TestFramework {
     @Internal
     @Override
     public List<TestFrameworkDistributionModule> getWorkerApplicationModulepathModules() {
-        return Collections.emptyList();  // (TestFramework)
-        // return DISTRIBUTION_MODULES; (JUnitPlatformTetFramework)
+        return DISTRIBUTION_MODULES;
     }
 
     /**
