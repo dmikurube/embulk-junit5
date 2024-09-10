@@ -16,6 +16,9 @@ configurations {
 }
 
 dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 }
 
 // A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
@@ -30,5 +33,18 @@ allprojects {
         doLast {
             configurations.findAll { it.canBeResolved }.each { it.resolve() }
         }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+        outputs.upToDateWhen { false }
     }
 }
