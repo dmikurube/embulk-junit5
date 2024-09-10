@@ -125,6 +125,21 @@ public class EmbulkJUnitPlatformTestFramework implements TestFramework {
     }
 
     /**
+     * Returns a list of distribution modules that the test worker requires on the application classpath.
+     * These dependencies are loaded from the Gradle distribution.
+     *
+     * Application classes specified by {@link WorkerProcessBuilder#sharedPackages} are
+     * also included in the implementation classpath.
+     *
+     * @see #getUseDistributionDependencies()
+     */
+    @Internal
+    @Override
+    public List<TestFrameworkDistributionModule> getWorkerApplicationClasspathModules() {
+        return Collections.emptyList();
+    }
+
+    /**
      * Returns a list of distribution modules that the test worker requires on the application modulepath if it runs as a module.
      * These dependencies are loaded from the Gradle distribution.
      *
@@ -137,6 +152,31 @@ public class EmbulkJUnitPlatformTestFramework implements TestFramework {
     @Override
     public List<TestFrameworkDistributionModule> getWorkerApplicationModulepathModules() {
         return DISTRIBUTION_MODULES;
+    }
+
+    /**
+     * Returns a list of distribution modules that the test worker requires on implementation the classpath.
+     * These dependencies are loaded from the Gradle distribution.
+     *
+     * @see #getUseDistributionDependencies()
+     */
+    @Internal
+    @Override
+    public List<TestFrameworkDistributionModule> getWorkerImplementationClasspathModules() {
+        // TODO: Include a classpath for EmbulkJUnitPlatformTestClassProcessorFactory here!
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns a list of distribution modules that the test worker requires on the implementation modulepath if it runs as a module.
+     * These dependencies are loaded from the Gradle distribution.
+     *
+     * @see #getUseDistributionDependencies()
+     */
+    @Internal
+    @Override
+    public List<TestFrameworkDistributionModule> getWorkerImplementationModulepathModules() {
+        return Collections.emptyList();
     }
 
     /**
