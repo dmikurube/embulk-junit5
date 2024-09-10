@@ -69,7 +69,7 @@ task embulkTest(type: Test) {
     classpath = sourceSets.embulkTest.runtimeClasspath
     testClassesDirs = sourceSets.embulkTest.output.classesDirs
 
-    useJUnitPlatform()
+    testFrameworkProperty.set(new org.embulk.junit5.EmbulkJUnitPlatformTestFramework(getFilter(), true, getDryRun()))
     testLogging {
         events "started", "passed", "skipped", "failed", "standardOut", "standardError"
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
