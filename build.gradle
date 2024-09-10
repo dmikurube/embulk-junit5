@@ -13,12 +13,28 @@ version = "0.1.0-SNAPSHOT"
 configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
+
+    embulkTestImplementation.extendsFrom testImplementation
+    embulkTestRuntime.extendsFrom testRuntime
+}
+
+sourceSets {
+    embulkTest {
+        java {
+            srcDir file("src/embulkTest/java")
+        }
+        resources.srcDir file("src/embulkTest/resources")
+    }
 }
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
+
+    embulkTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
+
+    embulkTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 }
 
 // A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
@@ -37,6 +53,22 @@ allprojects {
 }
 
 test {
+    useJUnitPlatform()
+    testLogging {
+        events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+        outputs.upToDateWhen { false }
+    }
+}
+
+task embulkTest(type: Test) {
+    classpath = sourceSets.embulkTest.runtimeClasspath
+    testClassesDirs = sourceSets.embulkTest.output.classesDirs
+
     useJUnitPlatform()
     testLogging {
         events "started", "passed", "skipped", "failed", "standardOut", "standardError"
