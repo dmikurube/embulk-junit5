@@ -17,10 +17,10 @@
 package org.embulk.junit5;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+// import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(PluginClassLoaderExtension.class)
-public class TestPluginClassLoaderExtension {
+// @ExtendWith(EmbulkPluginClassLoaderExtension.class)
+public class TestEmbulkPluginClassLoaderExtension {
     @Test
     public void test() {
         System.out.println("fuga");

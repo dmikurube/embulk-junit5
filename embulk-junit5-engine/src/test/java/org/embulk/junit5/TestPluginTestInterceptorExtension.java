@@ -17,9 +17,9 @@
 package org.embulk.junit5;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+// import org.junit.jupiter.api.extension.ExtendWith;
 
-@ExtendWith(PluginTestInterceptorExtension.class)
+// @ExtendWith(PluginTestInterceptorExtension.class)
 public class TestPluginTestInterceptorExtension {
     @Test
     public void test() {
