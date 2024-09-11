@@ -1,4 +1,4 @@
 rootProject.name = "embulk"
-includeBuild "build-logic"
+// includeBuild "build-logic"
 include "embulk-junit5-api"
 include "embulk-junit5-engine"

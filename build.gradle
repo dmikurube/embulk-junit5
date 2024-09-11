@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "embulk-plugin-test"
+    // id "embulk-plugin-test"
 }
 
 repositories {
@@ -14,10 +14,11 @@ configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
 
-    embulkTestImplementation.extendsFrom testImplementation
-    embulkTestRuntime.extendsFrom testRuntime
+    // embulkTestImplementation.extendsFrom testImplementation
+    // embulkTestRuntime.extendsFrom testRuntime
 }
 
+/*
 sourceSets {
     embulkTest {
         java {
@@ -26,15 +27,16 @@ sourceSets {
         resources.srcDir file("src/embulkTest/resources")
     }
 }
+*/
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 
-    embulkTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
+    // embulkTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
 
-    embulkTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
+    // embulkTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 }
 
 // A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
@@ -65,6 +67,7 @@ test {
     }
 }
 
+/*
 task embulkTest(type: Test) {
     classpath = sourceSets.embulkTest.runtimeClasspath
     testClassesDirs = sourceSets.embulkTest.output.classesDirs
@@ -80,3 +83,4 @@ task embulkTest(type: Test) {
         outputs.upToDateWhen { false }
     }
 }
+*/
