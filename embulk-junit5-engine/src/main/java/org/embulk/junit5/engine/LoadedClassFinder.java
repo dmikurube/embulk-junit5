@@ -16,14 +16,37 @@
 
 package org.embulk.junit5.engine;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 class LoadedClassFinder extends ClassLoader {
-    private LoadedClassFinder(final ClassLoader inner) {
-        this.inner = inner;
-    }
+    static synchronized Class<?> findFrom(final ClassLoader classLoader, final String name) {
+        final Method findLoadedClass;
+        try {
+            findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+        } catch (final NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
+        }
 
-    static Class<?> findFrom(final ClassLoader classLoader, final String name) {
-        return (new LoadedClassFinder(classLoader)).findLoadedClass(name);
-    }
+        findLoadedClass.setAccessible(true);
+        try {
+            final Object classObject;
+            try {
+                classObject = findLoadedClass.invoke(classLoader, name);
+            } catch (final IllegalAccessException | InvocationTargetException ex) {
+                throw new RuntimeException(ex);
+            }
 
-    private final ClassLoader inner;
+            if (classObject == null) {
+                return null;
+            }
+            if (classObject instanceof Class) {
+                return (Class<?>) classObject;
+            } else {
+                throw new RuntimeException();
+            }
+        } finally {
+            findLoadedClass.setAccessible(false);
+        }
+    }
 }

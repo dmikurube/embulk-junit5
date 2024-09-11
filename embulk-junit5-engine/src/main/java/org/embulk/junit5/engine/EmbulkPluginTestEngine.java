@@ -138,10 +138,11 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
     private static Class<?> findOrLoadClassFrom(final ClassLoader klassLoader, final String name) {
         final Class<?> foundClass = LoadedClassFinder.findFrom(klassLoader, name);
         if (foundClass != null) {
-            logger.info(() -> "\"" + name + "\" has been already loaded: " + foundClass.toString());
+            logger.info(() -> "<" + name + "> has been already loaded in [" + klassLoader + "]: " + foundClass.toString());
+            return foundClass;
         }
 
-        logger.info(() -> "\"" + name + "\" has not been loaded.");
+        logger.info(() -> "<" + name + "> has not been loaded in [" + klassLoader + "].");
         try {
             return Class.forName(name);  // <= TODO: Load it under PluginClassLoader !
         } catch (final ClassNotFoundException ex) {
