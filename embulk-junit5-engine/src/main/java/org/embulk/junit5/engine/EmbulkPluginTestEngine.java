@@ -18,7 +18,7 @@ package org.embulk.junit5.engine;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
-import org.embulk.junit5.EmbulkPluginTest;
+import org.embulk.junit5.api.EmbulkPluginTest;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.TestDescriptor;

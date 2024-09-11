@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.embulk.junit5;
+package org.embulk.junit5.engine;
 
 import org.junit.jupiter.api.Test;
 // import org.junit.jupiter.api.extension.ExtendWith;
 
-// @ExtendWith(EmbulkPluginClassLoaderExtension.class)
-public class TestEmbulkPluginClassLoaderExtension {
+// @ExtendWith(PluginTestInterceptorExtension.class)
+public class TestPluginTestInterceptorExtension {
     @Test
     public void test() {
         System.out.println("fuga");

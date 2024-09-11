@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.embulk.junit5;
+package org.embulk.junit5.api;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
