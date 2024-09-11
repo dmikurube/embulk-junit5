@@ -39,21 +39,6 @@ dependencies {
     // embulkTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 }
 
-// A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
-//
-// This task fails explicitly when the specified dependency is not available.
-// In contrast, "dependencies (--write-locks)" does not fail even when a part the dependencies are unavailable.
-//
-// https://docs.gradle.org/7.6.1/userguide/dependency_locking.html#generating_and_updating_dependency_locks
-allprojects {
-    task checkDependencies {
-        notCompatibleWithConfigurationCache("The task \"checkDependencies\" filters configurations at execution time.")
-        doLast {
-            configurations.findAll { it.canBeResolved }.each { it.resolve() }
-        }
-    }
-}
-
 test {
     useJUnitPlatform()
     testLogging {
