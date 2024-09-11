@@ -48,6 +48,16 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
      */
     @Override
     public TestDescriptor discover(final EngineDiscoveryRequest discoveryRequest, final UniqueId uniqueId) {
+        System.out.println("EngineDiscoveryRequest: " + discoveryRequest.toString());
+        if (discoveryRequest instanceof org.junit.platform.launcher.LauncherDiscoveryRequest) {
+            final org.junit.platform.launcher.LauncherDiscoveryRequest launcherDiscoveryRequest =
+                    (org.junit.platform.launcher.LauncherDiscoveryRequest) discoveryRequest;
+            System.out.println("  EngineFilters: " + launcherDiscoveryRequest.getEngineFilters());
+            System.out.println("  PostDiscoveryFilters: " + launcherDiscoveryRequest.getPostDiscoveryFilters());
+        }
+        System.out.println("  ConfigurationParameters: " + discoveryRequest.getConfigurationParameters());
+        System.out.println("UniqueId: " + uniqueId.toString());
+
         final EmbulkPluginTestEngineDescriptor engineDescriptor = new EmbulkPluginTestEngineDescriptor(uniqueId);
 
         discoveryRequest.getSelectorsByType(ClassSelector.class).forEach(classSelector -> {
@@ -68,7 +78,6 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
             } catch (final ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
-
 
             final TestDescriptor classDescriptor =
                     new ClassTestDescriptor(uniqueId.append("class", testClass.getName()), testClass);

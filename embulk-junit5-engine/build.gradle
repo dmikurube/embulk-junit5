@@ -39,6 +39,7 @@ dependencies {
     api platform("org.junit:junit-bom:5.11.0")
     api "org.junit.jupiter:junit-jupiter-api"  // Follows junit-bom:5.11.0 => 5.11.0
     api "org.junit.platform:junit-platform-engine"  // Follows junit-bom:5.11.0 => 1.11.0
+    api "org.junit.platform:junit-platform-launcher"  // Follows junit-bom:5.11.0 => 1.11.0
 }
 
 javadoc {
