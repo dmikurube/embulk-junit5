@@ -19,6 +19,8 @@ package org.embulk.junit5.engine;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import org.embulk.junit5.api.EmbulkPluginTest;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.ExecutionRequest;
 import org.junit.platform.engine.TestDescriptor;
@@ -29,8 +31,17 @@ import org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutorSe
 import org.junit.platform.engine.support.hierarchical.OpenTest4JAwareThrowableCollector;
 import org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
 
 public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkPluginTestEngineExecutionContext> {
+    public EmbulkPluginTestEngine() {
+        super();
+        final Class<?> klass = this.getClass();
+        this.klassLoader = klass.getClassLoader();
+        logger.info(() -> "Initializing EmbulkPluginTestEngine@" + Integer.toHexString(this.hashCode()));
+        logger.info(() -> "EmbulkPluginTestEngine's ClassLoader: " + this.klassLoader.toString());
+    }
+
     /**
      * Returns {@code "embulk-junit5-engine"} as the engine ID.
      */
@@ -48,15 +59,14 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
      */
     @Override
     public TestDescriptor discover(final EngineDiscoveryRequest discoveryRequest, final UniqueId uniqueId) {
-        System.out.println("EngineDiscoveryRequest: " + discoveryRequest.toString());
-        if (discoveryRequest instanceof org.junit.platform.launcher.LauncherDiscoveryRequest) {
-            final org.junit.platform.launcher.LauncherDiscoveryRequest launcherDiscoveryRequest =
-                    (org.junit.platform.launcher.LauncherDiscoveryRequest) discoveryRequest;
-            System.out.println("  EngineFilters: " + launcherDiscoveryRequest.getEngineFilters());
-            System.out.println("  PostDiscoveryFilters: " + launcherDiscoveryRequest.getPostDiscoveryFilters());
+        logger.trace(() -> "EngineDiscoveryRequest: " + discoveryRequest.toString());
+        if (discoveryRequest instanceof LauncherDiscoveryRequest) {
+            final LauncherDiscoveryRequest launcherDiscoveryRequest = (LauncherDiscoveryRequest) discoveryRequest;
+            logger.trace(() -> "  EngineFilters: " + launcherDiscoveryRequest.getEngineFilters());
+            logger.trace(() -> "  PostDiscoveryFilters: " + launcherDiscoveryRequest.getPostDiscoveryFilters());
         }
-        System.out.println("  ConfigurationParameters: " + discoveryRequest.getConfigurationParameters());
-        System.out.println("UniqueId: " + uniqueId.toString());
+        logger.trace(() -> "  ConfigurationParameters: " + discoveryRequest.getConfigurationParameters());
+        logger.trace(() -> "UniqueId: " + uniqueId.toString());
 
         final EmbulkPluginTestEngineDescriptor engineDescriptor = new EmbulkPluginTestEngineDescriptor(uniqueId);
 
@@ -72,12 +82,7 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
             // final Class<?> testClass = classSelector.getJavaClass();  // Not to get the Java class directly!
             final String testClassName = classSelector.getClassName();
-            final Class<?> testClass;
-            try {
-                testClass = Class.forName(testClassName);  // <= TODO: Load it under PluginClassLoader !
-            } catch (final ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            final Class<?> testClass = findOrLoadClassFrom(this.klassLoader, testClassName);;
 
             final TestDescriptor classDescriptor =
                     new ClassTestDescriptor(uniqueId.append("class", testClass.getName()), testClass);
@@ -129,4 +134,22 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
     protected EmbulkPluginTestEngineExecutionContext createExecutionContext​(final ExecutionRequest request) {
         return new EmbulkPluginTestEngineExecutionContext();
     }
+
+    private static Class<?> findOrLoadClassFrom(final ClassLoader klassLoader, final String name) {
+        final Class<?> foundClass = LoadedClassFinder.findFrom(klassLoader, name);
+        if (foundClass != null) {
+            logger.info(() -> "\"" + name + "\" has been already loaded: " + foundClass.toString());
+        }
+
+        logger.info(() -> "\"" + name + "\" has not been loaded.");
+        try {
+            return Class.forName(name);  // <= TODO: Load it under PluginClassLoader !
+        } catch (final ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static final Logger logger = LoggerFactory.getLogger(EmbulkPluginTestEngine.class);
+
+    private final ClassLoader klassLoader;
 }
