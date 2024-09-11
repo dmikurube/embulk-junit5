@@ -14,11 +14,10 @@ configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
 
-    // embulkTestImplementation.extendsFrom testImplementation
-    // embulkTestRuntime.extendsFrom testRuntime
+    embulkTestImplementation.extendsFrom testImplementation
+    embulkTestRuntime.extendsFrom testRuntime
 }
 
-/*
 sourceSets {
     embulkTest {
         java {
@@ -27,16 +26,15 @@ sourceSets {
         resources.srcDir file("src/embulkTest/resources")
     }
 }
-*/
 
 dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 
-    // embulkTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
+    embulkTestImplementation project(":embulk-junit5-api")
 
-    // embulkTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
+    embulkTestRuntimeOnly project(":embulk-junit5-engine")
 }
 
 test {
@@ -52,12 +50,12 @@ test {
     }
 }
 
-/*
 task embulkTest(type: Test) {
+    useJUnitPlatform()
+
     classpath = sourceSets.embulkTest.runtimeClasspath
     testClassesDirs = sourceSets.embulkTest.output.classesDirs
 
-    testFrameworkProperty.set(new org.embulk.junit5.EmbulkJUnitPlatformTestFramework(getFilter(), true, getDryRun()))
     testLogging {
         events "started", "passed", "skipped", "failed", "standardOut", "standardError"
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
@@ -68,4 +66,3 @@ task embulkTest(type: Test) {
         outputs.upToDateWhen { false }
     }
 }
-*/
