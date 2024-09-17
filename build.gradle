@@ -35,6 +35,7 @@ dependencies {
     embulkTestImplementation project(":embulk-junit5-api")
 
     embulkTestRuntimeOnly project(":embulk-junit5-engine")
+    embulkTestRuntimeOnly "org.embulk:embulk-core:0.11.5"
 }
 
 test {

@@ -19,6 +19,9 @@ package org.embulk.junit5.engine;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import org.embulk.junit5.api.EmbulkPluginTest;
+import org.embulk.plugin.PluginClassLoader;
+import org.embulk.plugin.PluginClassLoaderFactory;
+import org.embulk.plugin.PluginClassLoaderFactoryImpl;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
 import org.junit.platform.engine.EngineDiscoveryRequest;
@@ -40,6 +43,8 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
         this.klassLoader = klass.getClassLoader();
         logger.info(() -> "Initializing EmbulkPluginTestEngine@" + Integer.toHexString(this.hashCode()));
         logger.info(() -> "EmbulkPluginTestEngine's ClassLoader: " + this.klassLoader.toString());
+        this.pluginClassLoaderFactory = PluginClassLoaderFactoryImpl.of();
+        // this.pluginClassLoader = this.pluginClassLoaderFactory.create(, this.klassLoader);
     }
 
     /**
@@ -82,7 +87,7 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
             // final Class<?> testClass = classSelector.getJavaClass();  // Not to get the Java class directly!
             final String testClassName = classSelector.getClassName();
-            final Class<?> testClass = findOrLoadClassFrom(this.klassLoader, testClassName);;
+            final Class<?> testClass = findOrLoadClassFrom(this.klassLoader, testClassName);
 
             final TestDescriptor classDescriptor =
                     new ClassTestDescriptor(uniqueId.append("class", testClass.getName()), testClass);
@@ -144,7 +149,7 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
         logger.info(() -> "<" + name + "> has not been loaded in [" + klassLoader + "].");
         try {
-            return Class.forName(name);  // <= TODO: Load it under PluginClassLoader !
+            return klassLoader.loadClass(name);
         } catch (final ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
@@ -153,4 +158,8 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
     private static final Logger logger = LoggerFactory.getLogger(EmbulkPluginTestEngine.class);
 
     private final ClassLoader klassLoader;
+
+    private final PluginClassLoaderFactory pluginClassLoaderFactory;
+
+    // private final PluginClassLoader pluginClassLoader;
 }

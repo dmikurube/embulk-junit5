@@ -1,4 +1,4 @@
-package org.embulk.junit5.example;
+package org.embulk.input.junit5example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

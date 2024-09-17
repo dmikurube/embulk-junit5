@@ -34,6 +34,8 @@ java {
 }
 
 dependencies {
+    compileOnly "org.embulk:embulk-core:0.11.5"
+
     api project(":embulk-junit5-api")
 
     api platform("org.junit:junit-bom:5.11.0")

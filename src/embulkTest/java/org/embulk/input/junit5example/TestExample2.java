@@ -1,17 +1,17 @@
-package org.embulk.junit5.example;
+package org.embulk.input.junit5example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.embulk.junit5.api.EmbulkPluginTest;
 
-public class TestExample1 {
+public class TestExample2 {
     @EmbulkPluginTest
-    public void testExample1_1() {
+    public void testExample2_1() {
         assertEquals(0, 1 - 1);
     }
 
     @EmbulkPluginTest
-    public void testExample1_2() {
+    public void testExample2_2() {
         assertEquals(0, 1 - 1);
     }
 }
