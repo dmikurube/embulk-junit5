@@ -87,6 +87,26 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
             // final Class<?> testClass = classSelector.getJavaClass();  // Not to get the Java class directly!
             final String testClassName = classSelector.getClassName();
+            try {
+                System.out.println(Class.forName("org.embulk.input.junit5example.ExampleInputPlugin"));
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
+            try {
+                System.out.println(Class.forName("org.embulk.input.junit5example.TestExample"));
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
+            try {
+                System.out.println(Class.forName("org.embulk.input.junit5example.TestExample1"));
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
+            try {
+                System.out.println(Class.forName("org.embulk.util.config.Config"));
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
             final Class<?> testClass = findOrLoadClassFrom(this.klassLoader, testClassName);
 
             final TestDescriptor classDescriptor =

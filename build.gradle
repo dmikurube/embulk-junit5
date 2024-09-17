@@ -14,8 +14,8 @@ configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
 
-    embulkTestImplementation.extendsFrom testImplementation
-    embulkTestRuntime.extendsFrom testRuntime
+    // No need to declare "embulkTestImplementation" explicitly as the sourceSet "embulkTest" is declared below.
+    // No need to declare "embulkTestRuntime" explicitly as the sourceSet "embulkTest" is declared below.
 }
 
 sourceSets {
@@ -44,9 +44,12 @@ dependencies {
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.11.0"
 
-    embulkTestImplementation project(":embulk-junit5-api")
+    embulkTestImplementation project(":embulk-junit5-api")  // TODO: embulk-junit5-api depends on junit-jupiter-api transitively?
+    embulkTestImplementation "org.junit.jupiter:junit-jupiter-api:5.11.0"
 
     embulkTestRuntimeOnly project(":embulk-junit5-engine")
+
+    // embulk-core can be loaded in the top-level class loader.
     embulkTestRuntimeOnly "org.embulk:embulk-core:0.11.5"
 }
 
@@ -70,9 +73,21 @@ test {
 }
 
 task embulkTest(type: Test) {
+    doFirst {
+        println "^^^^^ Classpath information in embulkTest ^^^^^"
+        println sourceSets.embulkTest.runtimeClasspath
+        println sourceSets.embulkTest.runtimeClasspathConfigurationName
+        sourceSets.embulkTest.runtimeClasspath.each {
+            println it
+        }
+        println "^^^^^ Classpath information in embulkTest ^^^^^"
+    }
+
     useJUnitPlatform()
 
     classpath = sourceSets.embulkTest.runtimeClasspath
+
+    // Pick up "@EmbulkPluginTest" methods from the classes in "testClassesDirs"
     testClassesDirs = sourceSets.embulkTest.output.classesDirs
 
     testLogging {
