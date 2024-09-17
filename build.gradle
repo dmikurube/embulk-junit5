@@ -85,6 +85,16 @@ task embulkTest(type: Test) {
 
     useJUnitPlatform()
 
+    // TODO See the following Gradle implementations to investigate Gradle classpath configurations.
+    //
+    // JavaPlugin.createDefaultTestSuite
+    // https://github.com/gradle/gradle/blob/v8.10.1/platforms/jvm/plugins-java/src/main/java/org/gradle/api/plugins/JavaPlugin.java#L354-L383
+    //
+    // SourceSet.getRuntimeClasspathConfigurationName
+    // https://github.com/gradle/gradle/blob/v8.10.1/platforms/jvm/platform-jvm/src/main/java/org/gradle/api/internal/tasks/DefaultSourceSet.java#L194-L197
+    //
+    // SourceSet.getRuntimeClasspath
+    // https://github.com/gradle/gradle/blob/v8.10.1/platforms/jvm/platform-jvm/src/main/java/org/gradle/api/internal/tasks/DefaultSourceSet.java#L239-L242
     classpath = sourceSets.embulkTest.runtimeClasspath
 
     // Pick up "@EmbulkPluginTest" methods from the classes in "testClassesDirs"
