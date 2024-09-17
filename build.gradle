@@ -10,6 +10,12 @@ repositories {
 group = "org.embulk"
 version = "0.1.0-SNAPSHOT"
 
+// The root project is a dummy Embulk plugin to be tested with ":embulk-junit5-api" and ":embulk-junit5-engine".
+//
+// src/main -- The main Embulk plugin code
+// src/test -- The "unit tests" for the plugin code (normal JUnit 5 tests without any classpath hacks)
+// src/embulkTest -- The "Embulk plugin tests" to run with ":embulk-junit5-api" and ":embulk-junit5-engine"
+
 configurations {
     compileClasspath.resolutionStrategy.activateDependencyLocking()
     runtimeClasspath.resolutionStrategy.activateDependencyLocking()
