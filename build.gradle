@@ -22,6 +22,11 @@ configurations {
 
     // No need to declare "embulkTestImplementation" explicitly as the sourceSet "embulkTest" is declared below.
     // No need to declare "embulkTestRuntime" explicitly as the sourceSet "embulkTest" is declared below.
+    //
+    // "embulkTestImplementation" should not ".extendsFrom testImplementation"
+    // so that it won't include main and test in the top-level class loader.
+    //
+    // "embulkTestRuntime" should not ".extendsFrom testRuntime" similarly.
 }
 
 sourceSets {
