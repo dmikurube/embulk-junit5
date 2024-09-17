@@ -74,13 +74,19 @@ test {
 
 task embulkTest(type: Test) {
     doFirst {
+        println "^^^^^ Classpath information in main ^^^^^"
+        println sourceSets.main.runtimeClasspath
+        println sourceSets.main.runtimeClasspathConfigurationName
+        sourceSets.main.runtimeClasspath.each {
+            println it
+        }
         println "^^^^^ Classpath information in embulkTest ^^^^^"
         println sourceSets.embulkTest.runtimeClasspath
         println sourceSets.embulkTest.runtimeClasspathConfigurationName
         sourceSets.embulkTest.runtimeClasspath.each {
             println it
         }
-        println "^^^^^ Classpath information in embulkTest ^^^^^"
+        println "^^^^^ Classpath information done ^^^^^"
     }
 
     useJUnitPlatform()
