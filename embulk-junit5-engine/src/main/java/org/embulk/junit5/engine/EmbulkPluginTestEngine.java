@@ -44,7 +44,7 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
         logger.info(() -> "Initializing EmbulkPluginTestEngine@" + Integer.toHexString(this.hashCode()));
         logger.info(() -> "EmbulkPluginTestEngine's ClassLoader: " + this.klassLoader.toString());
         this.pluginClassLoaderFactory = PluginClassLoaderFactoryImpl.of();
-        // this.pluginClassLoader = this.pluginClassLoaderFactory.create(, this.klassLoader);
+        this.pluginClassLoader = null;
     }
 
     /**
@@ -161,5 +161,5 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
     private final PluginClassLoaderFactory pluginClassLoaderFactory;
 
-    // private final PluginClassLoader pluginClassLoader;
+    private final PluginClassLoader pluginClassLoader;
 }
