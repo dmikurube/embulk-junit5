@@ -16,8 +16,18 @@
 
 package org.embulk.junit5.engine;
 
+import java.io.File;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.embulk.junit5.api.EmbulkPluginTest;
 import org.embulk.plugin.PluginClassLoader;
 import org.embulk.plugin.PluginClassLoaderFactory;
@@ -37,14 +47,39 @@ import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 
 public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkPluginTestEngineExecutionContext> {
-    public EmbulkPluginTestEngine() {
+    public EmbulkPluginTestEngine() throws InvalidPathException, IllegalArgumentException, MalformedURLException {
         super();
         final Class<?> klass = this.getClass();
         this.klassLoader = klass.getClassLoader();
         logger.info(() -> "Initializing EmbulkPluginTestEngine@" + Integer.toHexString(this.hashCode()));
         logger.info(() -> "EmbulkPluginTestEngine's ClassLoader: " + this.klassLoader.toString());
         this.pluginClassLoaderFactory = PluginClassLoaderFactoryImpl.of();
-        this.pluginClassLoader = null;
+
+        final String pluginClassPath = System.getProperty("org.embulk.junit5.plugin.class.path");
+        logger.info(() -> "System property \"org.embulk.junit5.plugin.class.path\": " + pluginClassPath);
+        final ArrayList<URL> classPathUrls = new ArrayList<>();
+        if (pluginClassPath != null && !pluginClassPath.isEmpty()) {
+            final String[] paths = pluginClassPath.split(Pattern.quote(File.pathSeparator));
+            for (final String pathString : paths) {
+                final Path path;
+                try {
+                    path = Paths.get(pathString);
+                } catch (final InvalidPathException ex) {
+                    throw ex;
+                }
+                try {
+                    classPathUrls.add(path.toUri().toURL());
+                } catch (final MalformedURLException ex) {
+                    throw new UncheckedIOException(ex);
+                } catch (final IllegalArgumentException ex) {
+                    throw ex;
+                }
+            }
+        }
+        logger.info(() -> "Building PluginClassLoader with: " + classPathUrls);
+
+        this.pluginClassLoader =
+                this.pluginClassLoaderFactory.create(Collections.unmodifiableList(classPathUrls), this.klassLoader);
     }
 
     /**
@@ -87,27 +122,16 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
 
             // final Class<?> testClass = classSelector.getJavaClass();  // Not to get the Java class directly!
             final String testClassName = classSelector.getClassName();
-            try {
-                System.out.println(Class.forName("org.embulk.input.junit5example.ExampleInputPlugin"));
-            } catch (final Exception ex) {
-                ex.printStackTrace();
-            }
-            try {
-                System.out.println(Class.forName("org.embulk.input.junit5example.TestExample"));
-            } catch (final Exception ex) {
-                ex.printStackTrace();
-            }
-            try {
-                System.out.println(Class.forName("org.embulk.input.junit5example.TestExample1"));
-            } catch (final Exception ex) {
-                ex.printStackTrace();
-            }
-            try {
-                System.out.println(Class.forName("org.embulk.util.config.Config"));
-            } catch (final Exception ex) {
-                ex.printStackTrace();
-            }
-            final Class<?> testClass = findOrLoadClassFrom(this.klassLoader, testClassName);
+
+            // Just debug prints.
+            checkClass("org.embulk.input.junit5example.ExampleInputPlugin");
+            checkClass("org.embulk.input.junit5example.TestExample");
+            checkClass("org.embulk.input.junit5example.TestExample1");
+            checkClass("org.embulk.util.config.Config");
+
+            final Class<?> testClass = findOrLoadClassFrom(this.pluginClassLoader, testClassName);
+            logger.info(() -> "<" + testClass.getName() + "> has been already loaded in [" + testClass.getClassLoader() + "]: "
+                                + testClass.toString() + "@" + testClass.hashCode());
 
             final TestDescriptor classDescriptor =
                     new ClassTestDescriptor(uniqueId.append("class", testClass.getName()), testClass);
@@ -160,16 +184,28 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
         return new EmbulkPluginTestEngineExecutionContext();
     }
 
-    private static Class<?> findOrLoadClassFrom(final ClassLoader klassLoader, final String name) {
-        final Class<?> foundClass = LoadedClassFinder.findFrom(klassLoader, name);
+    private static Class<?> checkClass(final String name) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(name);
+        } catch (final ClassNotFoundException ex) {
+            logger.info(() -> "<" + name + "> has not been loaded in the top-level classLoader.");
+            return null;
+        }
+        logger.info(() -> "<" + name + "> has been loaded in the top-level classLoader: " + clazz.toString() + "@" + clazz.hashCode());
+        return clazz;
+    }
+
+    private static Class<?> findOrLoadClassFrom(final PluginClassLoader classLoader, final String name) {
+        final Class<?> foundClass = LoadedClassFinder.findFrom(classLoader, name);
         if (foundClass != null) {
-            logger.info(() -> "<" + name + "> has been already loaded in [" + klassLoader + "]: " + foundClass.toString());
+            logger.info(() -> "<" + name + "> has been already loaded in [" + classLoader + "]: " + foundClass.toString());
             return foundClass;
         }
 
-        logger.info(() -> "<" + name + "> has not been loaded in [" + klassLoader + "].");
+        logger.info(() -> "<" + name + "> has not been loaded in [" + classLoader + "].");
         try {
-            return klassLoader.loadClass(name);
+            return classLoader.loadClassInThisClassLoader(name, false);
         } catch (final ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }

@@ -62,6 +62,11 @@ dependencies {
 
     // embulk-core can be loaded in the top-level class loader.
     embulkTestRuntimeOnly "org.embulk:embulk-core:0.11.5"
+
+    // To access the Embulk core classes from the tests.
+    embulkTestCompileOnly "org.embulk:embulk-core:0.11.5"
+
+    // TODO: Confirm just 'embulkTestImplementation "org.embulk:embulk-core:0.11.5"' may be better?
 }
 
 embulkPlugin {
@@ -83,7 +88,19 @@ test {
     }
 }
 
-task embulkTest(type: Test) {
+def joinPluginClasspath(FileCollection embulkTestClassesDirs, File embulkTestResourcesDir, FileCollection mainRuntimeClasspath) {
+    List<String> list = []
+    embulkTestClassesDirs.files.each { file ->
+        list.add(file.getAbsolutePath())
+    }
+    list.add(embulkTestResourcesDir.getAbsolutePath())
+    mainRuntimeClasspath.files.each { file ->
+        list.add(file.getAbsolutePath())
+    }
+    return list.join(File.pathSeparator)
+}
+
+task embulkTest(type: Test, dependsOn: ":compileJava") {
     doFirst {
         println "^^^^^ Classpath information in main ^^^^^"
         println sourceSets.main.runtimeClasspath
@@ -116,6 +133,13 @@ task embulkTest(type: Test) {
 
     // Pick up "@EmbulkPluginTest" methods from the classes in "testClassesDirs"
     testClassesDirs = sourceSets.embulkTest.output.classesDirs
+
+    afterEvaluate { project ->
+        systemProperty "org.embulk.junit5.plugin.class.path",
+                       joinPluginClasspath(sourceSets.embulkTest.output.classesDirs,
+                                           sourceSets.embulkTest.output.resourcesDir,
+                                           sourceSets.main.runtimeClasspath)
+    }
 
     testLogging {
         events "started", "passed", "skipped", "failed", "standardOut", "standardError"
