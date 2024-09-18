@@ -100,7 +100,7 @@ def joinPluginClasspath(FileCollection embulkTestClassesDirs, File embulkTestRes
     return list.join(File.pathSeparator)
 }
 
-task embulkTest(type: Test, dependsOn: ":compileJava") {
+task embulkTest(type: Test, dependsOn: ":assemble") {
     doFirst {
         println "^^^^^ Classpath information in main ^^^^^"
         println sourceSets.main.runtimeClasspath
