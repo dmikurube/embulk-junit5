@@ -111,16 +111,27 @@ public final class EmbulkPluginTestEngine extends HierarchicalTestEngine<EmbulkP
         final EmbulkPluginTestEngineDescriptor engineDescriptor = new EmbulkPluginTestEngineDescriptor(uniqueId);
 
         discoveryRequest.getSelectorsByType(ClassSelector.class).forEach(classSelector -> {
-            // If Gradle constructs ClassSelector instances by class names, not by class objects,
-            // test classes are not loaded on the top-level class loader that is the same with the TestEngine.
+            // NOTE: Gradle('s test worker) once loads the target test class in its class loader before starting the test.
+            // It means that the target test class has already loaded in the its (top-level) class loader.
             //
-            // v7.6.3
-            // https://github.com/gradle/gradle/blob/v7.6.3/subprojects/testing-junit-platform/src/main/java/org/gradle/api/internal/tasks/testing/junitplatform/JUnitPlatformTestClassProcessor.java#L87-L94
+            // https://github.com/gradle/gradle/blob/v8.10.0/platforms/jvm/testing-junit-platform/src/main/java/org/gradle/api/internal/tasks/testing/junitplatform/JUnitPlatformTestClassProcessor.java#L83-L90
             //
-            // The situation might be better in Gradle v8?
-            // https://github.com/gradle/gradle/blob/v8.5.0/platforms/jvm/testing-junit-platform/src/main/java/org/gradle/api/internal/tasks/testing/junitplatform/JUnitPlatformTestClassProcessor.java#L78-L85
+            // https://github.com/gradle/gradle/blob/v8.10.0/platforms/jvm/testing-junit-platform/src/main/java/org/gradle/api/internal/tasks/testing/junitplatform/JUnitPlatformTestClassProcessor.java#L99
+            //
+            // Unfortunately, it can conflict with the requirement for the test class to be loaded in Embulk's PluginClassLoader
+            // along with the plugin's main classes.
+            //
+            // It is unavoidable. However, in order to mitigate the situation, Embulk and this Test Engine had smoe tweaks.
+            // * This Test Engine tries to get the test class by class name, not by the Java class object. (below)
+            // * This Test Engine loads the test class in Embulk's PluginClassLoader with "#loadClassInThisClassLoader"
+            //     ** Added in https://github.com/embulk/embulk/pull/1686
+            // * Embulk (v0.11.5+) PluginClassLoader prioritizes more classes to be loaded in it, not in the parent class loader.
+            //     ** Changed in https://github.com/embulk/embulk/pull/1684
+            //     ** Not all "org.embulk" classes are loaded in the parent class loader in priority.
 
-            // final Class<?> testClass = classSelector.getJavaClass();  // Not to get the Java class directly!
+            // final Class<?> testClass = classSelector.getJavaClass();
+            // Not to get the Java class "in the top-level class loader" directly!
+
             final String testClassName = classSelector.getClassName();
 
             // Just debug prints.
